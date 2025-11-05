@@ -1,3 +1,14 @@
+/************************************************************
+ * File: probe.c
+ * Project: sensor-stream-aggregator
+ * Description:
+ *   Simple TCP listener that connects to three server ports
+ *   (4001, 4002, 4003) and dumps all incoming data to the
+ *   terminal for inspection.
+ * Author: Nipun Pal
+ * Date: 2025-11-04
+ ************************************************************/
+
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +18,7 @@
 #include <errno.h>
 #include <sys/select.h>  
 
+/* Establish TCP connection to given host and port. */
 static int connect_to(const char *host, int port) {
     int s = socket(AF_INET,SOCK_STREAM,0);
     if(s < 0) { 
@@ -34,6 +46,7 @@ int main(void) {
     int ports[3] = {4001, 4002, 4003};
     int sock[3];
 
+    /* Connect to all three ports. */
     for(int i=0; i<3; i++) {
         sock[i] = connect_to(host, ports[i]);
         if(sock[i] < 0) return 1;
@@ -50,6 +63,7 @@ int main(void) {
         }
     }
 
+     /* Main loop: wait for data on any port and print it. */
     while(1) {
         
         FD_ZERO(&rfds);
@@ -63,6 +77,7 @@ int main(void) {
             break;
         }
 
+        /* Read from whichever socket has data ready. */
         for(int i=0; i<3; i++) {
             if(FD_ISSET(sock[i], &rfds)) {
                 ssize_t r = read(sock[i], buf, sizeof(buf)-1);
