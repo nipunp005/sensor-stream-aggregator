@@ -37,18 +37,11 @@ int main(void) {
     char token[64];
 
     // connect all sockets using helper
-    for(int i=0; i<OUT_PORTS_COUNT; i++) {
-        sock[i] = connect_nonblocking(host, ports[i]);
-        if(sock[i] < 0) {
-            fprintf(stderr, "Connection to port %d failed\n", ports[i]);
-            return 1;
-        }
-        fprintf(stderr, "Connected to port : %d\n", ports[i]);
-    }
+    if(connect_all_sockets(host, ports, OUT_PORTS_COUNT, sock) < 0)
+        return 1;
 
-    int maxfd = sock[0];
-    for (int i = 1; i < OUT_PORTS_COUNT; ++i)
-        if (sock[i] > maxfd) maxfd = sock[i];
+    // Get the max fd value
+    int maxfd = maxfd_func(sock, OUT_PORTS_COUNT);
 
     fd_set rfds;
 
@@ -96,9 +89,7 @@ int main(void) {
         // Check if 100ms window elapsed
         unsigned long long now = now_ms();
         if(now - last_tick >= WINDOW_MS) {
-            printf("{\"timestamp\": %llu, \"out1\": \"%s\", \"out2\": \"%s\", \"out3\": \"%s\"}\n",
-                    now, last_val[0], last_val[1], last_val[2]);
-            fflush(stdout);
+            print_json(now, last_val, OUT_PORTS_COUNT);
 
             // reset tick
             last_tick = now;

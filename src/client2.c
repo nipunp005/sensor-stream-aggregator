@@ -69,14 +69,8 @@ int main(void)
     char last_val[OUT_PORTS_COUNT][64] = {"--", "--", "--"};
 
     // Connect all TCP sockets
-    for (int i = 0; i < OUT_PORTS_COUNT; i++) {
-        sock[i] = connect_nonblocking(host, ports[i]);
-        if (sock[i] < 0) {
-            fprintf(stderr, "Connection to port %d failed\n", ports[i]);
-            return 1;
-        }
-        fprintf(stderr, "Connected to port : %d\n", ports[i]);
-    }
+    if(connect_all_sockets(host, ports, OUT_PORTS_COUNT, sock) < 0)
+        return 1;
 
     // Setup UDP socket for control
     int udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -163,9 +157,7 @@ int main(void)
             }
 
             // Print one JSON object
-            printf("{\"timestamp\": %llu, \"out1\": \"%s\", \"out2\": \"%s\", \"out3\": \"%s\"}\n",
-                  now, last_val[0], last_val[1], last_val[2]);
-            fflush(stdout);
+            print_json(now, last_val, OUT_PORTS_COUNT);
 
             // Reset tick
             last_tick = now;

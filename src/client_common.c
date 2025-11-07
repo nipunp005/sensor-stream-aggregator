@@ -22,7 +22,7 @@
 
 #define LOCAL_BUF_MAX 4096
 
-/* Establish a non-blocking TCP connection to host:port. */
+// Establish a non-blocking TCP connection to host:port. 
 int connect_nonblocking(const char *host, int port) {
     int s = socket(AF_INET, SOCK_STREAM, 0);
     if (s < 0) {
@@ -30,7 +30,7 @@ int connect_nonblocking(const char *host, int port) {
         return -1;
     }
 
-    /* set non-blocking flag */
+    // set non-blocking flag 
     int flags = fcntl(s, F_GETFL, 0);
     if (flags < 0 || fcntl(s, F_SETFL, flags | O_NONBLOCK) < 0) {
         perror("fcntl");
@@ -47,12 +47,12 @@ int connect_nonblocking(const char *host, int port) {
         return -1;
     }
 
-    /* initiate non-blocking connect */
+    // initiate non-blocking connect
     connect(s, (struct sockaddr *)&sa, sizeof(sa));
-    return s; /* connection in progress or complete */
+    return s; // connection in progress or complete
 }
 
-/* Return current time in milliseconds since Unix epoch. */
+// Return current time in milliseconds since Unix epoch.
 uint64_t now_ms(void) {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -60,7 +60,7 @@ uint64_t now_ms(void) {
     return time;
 }
 
-/* Read from TCP socket and extract latest complete line (trimmed). */
+// Read from TCP socket and extract latest complete line (trimmed).
 int read_extract_latest(int fd, char *buf, char *token_out, size_t token_len) {
 
     ssize_t r = recv(fd, buf, token_len-1, 0);
@@ -89,7 +89,7 @@ int read_extract_latest(int fd, char *buf, char *token_out, size_t token_len) {
     return 1;
 }
 
-/* Safely close a file descriptor and reset it to -1. */
+// Safely close a file descriptor and reset it to -1.
 void close_fd(int *fdp) {
     if(fdp && (*fdp >= 0)) {
         close(*fdp);
@@ -97,3 +97,33 @@ void close_fd(int *fdp) {
     }
 }
 
+// Connect to all tcp sockets
+int connect_all_sockets(const char *host, const int *ports, int count, int *sock) {
+    for (int i = 0; i < count; i++) {
+        sock[i] = connect_nonblocking(host, ports[i]);
+        if (sock[i] < 0) {
+            fprintf(stderr, "Connection to port %d failed\n", ports[i]);
+            return -1;
+        }
+        fprintf(stderr, "Connected to port : %d\n", ports[i]);
+    }
+    return 0;
+}
+
+// Find fd with max value
+int maxfd_func(const int *sock, int count) {
+    int maxfd = sock[0];
+    for (int i = 1; i < count; ++i)
+        if (sock[i] > maxfd)
+            maxfd = sock[i];
+    return maxfd;
+}
+
+// Print out the json formatted data
+void print_json(unsigned long long ts, char last_val[][64], int count) {
+    printf("{\"timestamp\": %llu", ts);
+    for (int i = 0; i < count; i++)
+        printf(", \"out%d\": \"%s\"", i + 1, last_val[i]);
+    printf("}\n");
+    fflush(stdout);
+}
