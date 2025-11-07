@@ -43,7 +43,7 @@ def parse_client_json(filepath):
                         return float(str(v).strip())
                     except Exception:
                         return np.nan
-                
+
                 out1.append(safe(obj.get("out1")))
                 out2.append(safe(obj.get("out2")))
                 out3.append(safe(obj.get("out3")))

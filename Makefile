@@ -11,7 +11,7 @@ SRC_DIR   := src
 COMMON_OBJ := $(BUILD_DIR)/client_common.o
 
 # Default target
-all: probe client1
+all: probe client1 client2
 
 # Build directory rule
 $(BUILD_DIR):
@@ -46,8 +46,20 @@ client1: $(CLIENT1_BIN)
 $(CLIENT1_BIN): $(CLIENT1_OBJ) $(COMMON_OBJ)
 	$(CC) $(CFLAGS) $(CLIENT1_OBJ) $(COMMON_OBJ) -o $@
 
+# Client2 Application
+CLIENT2_OBJ := $(BUILD_DIR)/client2.o
+CLIENT2_BIN := $(BUILD_DIR)/client2
+
+$(CLIENT2_OBJ): $(SRC_DIR)/client2.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(CLIENT2_BIN): $(CLIENT2_OBJ) $(COMMON_OBJ)
+	$(CC) $(CFLAGS) $(CLIENT2_OBJ) $(COMMON_OBJ) -o $@
+
+client2: $(CLIENT2_BIN)
+
 # Housekeeping
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: all clean probe client1
+.PHONY: all clean probe client1 client2

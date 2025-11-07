@@ -77,7 +77,7 @@ int read_extract_latest(int fd, char *buf, char *token_out, size_t token_len) {
 
      // Trim trailing newline and carriage return characters
     for(ssize_t i = r-1; i>=0; i--) {
-        if(buf[i] == '\n' || buf[i] == '\r') 
+        if(buf[i] == '\n' || buf[i] == '\r')
             buf[i] = '\0';
         else
             break;

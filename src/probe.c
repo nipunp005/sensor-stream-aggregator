@@ -44,7 +44,7 @@ int main(void) {
 
      // Main loop: wait for data on any port and print it.
     while(1) {
-        
+
         FD_ZERO(&rfds);
         for(int i=0; i<3; i++) {
             FD_SET(sock[i], &rfds);

@@ -32,7 +32,7 @@ int main(void) {
 
     // latest known values (as strings)
     char last_val[OUT_PORTS_COUNT][64] = {"--","--","--"};
-        
+
     char buf[OUT_PORTS_COUNT][512];
     char token[64];
 
