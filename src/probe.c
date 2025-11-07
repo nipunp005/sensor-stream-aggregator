@@ -25,7 +25,7 @@ int main(void) {
     int ports[3] = {4001, 4002, 4003};
     int sock[3];
 
-    /* Connect to all three ports using reusable helper */
+    // Connect to all three ports using reusable helper
     for (int i = 0; i < 3; i++) {
         sock[i] = connect_nonblocking(host, ports[i]);
         if (sock[i] < 0) return 1;
@@ -42,7 +42,7 @@ int main(void) {
             maxfd = sock[i];
     }
 
-     /* Main loop: wait for data on any port and print it. */
+     // Main loop: wait for data on any port and print it.
     while(1) {
         
         FD_ZERO(&rfds);
@@ -56,7 +56,7 @@ int main(void) {
             break;
         }
 
-        /* Read from whichever socket has data ready */
+        // Read from whichever socket has data ready
         for (int i = 0; i < 3; i++) {
             if (sock[i] >= 0 && FD_ISSET(sock[i], &rfds)) {
                 int r = read_extract_latest(sock[i], buf, token, sizeof(token));
@@ -73,5 +73,4 @@ int main(void) {
             }
         }
     }
-
 }

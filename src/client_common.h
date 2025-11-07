@@ -12,13 +12,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/* Establish a non-blocking TCP connection to host:port. */
+// Establish a non-blocking TCP connection to host:port.
 int connect_nonblocking(const char *host, int port);
-/* Returns current time in milliseconds since Unix epoch. */
+// Returns current time in milliseconds since Unix epoch.
 uint64_t now_ms(void);
-/* Reads data from a TCP socket and extracts the latest complete line token. */
+// Reads data from a TCP socket and extracts the latest complete line token.
 int read_extract_latest(int fd, char *buf, char *token_out, size_t token_len);
-/* Safely closes a file descriptor if valid, then sets it to -1. */
+// Safely closes a file descriptor if valid, then sets it to -1.
 void close_fd(int *fdp);
 
 #endif

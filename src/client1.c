@@ -22,24 +22,22 @@
 #include "client_common.h"
 
 #define WINDOW_MS 100
+#define OUT_PORTS_COUNT 3
 
 int main(void) {
 
     const char *host = "127.0.0.1";
-    int ports[3] = {4001, 4002, 4003};
-    int sock[3];
+    int ports[OUT_PORTS_COUNT] = {4001, 4002, 4003};
+    int sock[OUT_PORTS_COUNT];
 
     // latest known values (as strings)
-    char last_val[3][64];
-    for (int i = 0; i < 3; ++i) {
-        strcpy(last_val[i], "--");
-    }
+    char last_val[OUT_PORTS_COUNT][64] = {"--","--","--"};
         
-    char buf[3][512];
+    char buf[OUT_PORTS_COUNT][512];
     char token[64];
 
     // connect all sockets using helper
-    for(int i=0; i<3; i++) {
+    for(int i=0; i<OUT_PORTS_COUNT; i++) {
         sock[i] = connect_nonblocking(host, ports[i]);
         if(sock[i] < 0) {
             fprintf(stderr, "Connection to port %d failed\n", ports[i]);
@@ -49,7 +47,7 @@ int main(void) {
     }
 
     int maxfd = sock[0];
-    for (int i = 1; i < 3; ++i)
+    for (int i = 1; i < OUT_PORTS_COUNT; ++i)
         if (sock[i] > maxfd) maxfd = sock[i];
 
     fd_set rfds;
@@ -61,7 +59,7 @@ int main(void) {
 
         // set up read fd set
         FD_ZERO(&rfds);
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < OUT_PORTS_COUNT; ++i)
             if (sock[i] >= 0)
                 FD_SET(sock[i], &rfds);
 
@@ -79,7 +77,7 @@ int main(void) {
         }
 
         // Read data from all ready sockets
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < OUT_PORTS_COUNT; ++i) {
             if (sock[i] >= 0 && FD_ISSET(sock[i], &rfds)) {
                 int r = read_extract_latest(sock[i], buf[i], token, sizeof(token));
                 if (r == 1) {
@@ -113,7 +111,7 @@ int main(void) {
     }
 
     // cleanup
-    for(int i=0; i<3; i++) {
+    for(int i=0; i<OUT_PORTS_COUNT; i++) {
         close_fd(&sock[i]);
     }
 

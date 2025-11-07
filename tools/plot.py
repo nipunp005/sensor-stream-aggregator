@@ -51,13 +51,16 @@ def parse_client_json(filepath):
                 continue
     df = pd.DataFrame({"timestamp": ts, "out1": out1, "out2": out2, "out3": out3})
     df.dropna(subset=["timestamp"], inplace=True)
+    # Making sure the variable takes the previous valid value for plotting when getting "--"
+    # This means previous value is held until new one arrives.
+    df[["out1", "out2", "out3"]] = df[["out1", "out2", "out3"]].ffill()
     df.reset_index(drop=True, inplace=True)
     return df, "json"
 
 
 def plot_ports(data, timestamps=None, json_mode=False):
     """Plot data from 3 ports with independent scaling"""
-    fig, axes = plt.subplots(3, 1, figsize=(10, 8), sharex=False)
+    fig, axes = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
     fig.suptitle("Sensor Stream Comparison", fontsize=14)
 
     ports = [4001, 4002, 4003]
